@@ -9,6 +9,7 @@ import javax.inject.Inject
 class FavoriteRepositoryImpl @Inject constructor(
     private val dao: FavoriteDao
 ) : FavoriteRepository {
+
     override fun observeFavoriteIds(): Flow<Set<Int>> =
         dao.observeFavoriteIds()
             .map { it.toSet() }

@@ -61,7 +61,7 @@ class ProductDetailViewModelTest {
         )
 
         // Then
-        Assert.assertTrue(vm.uiState.value is ProductDetailUiState.Loading)
+        assertTrue(vm.uiState.value is ProductDetailUiState.Loading)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -78,7 +78,7 @@ class ProductDetailViewModelTest {
         )
 
         viewModel.uiState.test {
-            // WHEN 👉 activas el flow
+            // WHEN
             viewModel.load(1)
 
             // THEN
