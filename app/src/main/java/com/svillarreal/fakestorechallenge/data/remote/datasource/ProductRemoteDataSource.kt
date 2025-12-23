@@ -1,0 +1,13 @@
+package com.svillarreal.fakestorechallenge.data.remote.datasource
+
+import com.svillarreal.fakestorechallenge.data.remote.api.ProductApi
+import com.svillarreal.fakestorechallenge.data.remote.model.ProductResponse
+import javax.inject.Inject
+
+class ProductRemoteDataSource @Inject constructor(
+    private val api: ProductApi
+) {
+    suspend fun getProducts(limit: Int): List<ProductResponse> {
+        return api.getProducts(limit)
+    }
+}
