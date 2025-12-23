@@ -6,11 +6,9 @@ import com.svillarreal.fakestorechallenge.data.connectivity.NetworkConnectivityO
 import com.svillarreal.fakestorechallenge.domain.usecase.GetProductsUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.ObserveIsOnlineUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.ObserveLastUpdatedAtUseCase
-import com.svillarreal.fakestorechallenge.domain.usecase.ObserveProductsUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.RefreshProductsUseCase
 import com.svillarreal.fakestorechallenge.ui.mapper.toViewData
 import com.svillarreal.fakestorechallenge.ui.model.ProductViewData
-import com.svillarreal.fakestorechallenge.ui.product.list.ProductStateProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,11 +29,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProductViewModel @Inject constructor(
-    private val getProductsUseCase: GetProductsUseCase,
+    getProductsUseCase: GetProductsUseCase,
     private val refreshProductsUseCase: RefreshProductsUseCase,
-    private val observeIsOnlineUseCase: ObserveIsOnlineUseCase,
-    private val observeLastUpdatedAtUseCase: ObserveLastUpdatedAtUseCase,
-    private val connectivityObserver: NetworkConnectivityObserver
+    observeIsOnlineUseCase: ObserveIsOnlineUseCase,
+    observeLastUpdatedAtUseCase: ObserveLastUpdatedAtUseCase,
+    connectivityObserver: NetworkConnectivityObserver
 ) : ViewModel(), ProductStateProvider {
     private val pageSize = 10
     private val maxFromApi = 20
@@ -51,12 +49,12 @@ class ProductViewModel @Inject constructor(
     val isOnline: StateFlow<Boolean> =
         observeIsOnlineUseCase()
             .catch { emit(false) }
-            .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5_000), false)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     val lastUpdatedAt: StateFlow<Long?> =
         observeLastUpdatedAtUseCase()
             .catch { emit(null) }
-            .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5_000), null)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
@@ -77,7 +75,7 @@ class ProductViewModel @Inject constructor(
             )
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Companion.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ProductsUiState()
         )
 

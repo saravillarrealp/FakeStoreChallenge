@@ -47,7 +47,6 @@ class ProductViewModelTest {
 
         val vm = ProductViewModel(
             getProductsUseCase = getProductsUseCase,
-            observeProductsUseCase = observeProductsUseCase,
             refreshProductsUseCase = refreshProductsUseCase,
             observeIsOnlineUseCase = observeIsOnlineUseCase,
             observeLastUpdatedAtUseCase = observeLastUpdatedAtUseCase,
@@ -61,13 +60,4 @@ class ProductViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
-
-    private fun fakeProduct(id: Int) = Product(
-        id = id,
-        title = "Test",
-        price = 10.0,
-        description = "desc",
-        category = "cat",
-        image = "img"
-    )
 }
