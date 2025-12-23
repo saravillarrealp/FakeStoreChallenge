@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.svillarreal.fakestorechallenge.routes.Route
 import com.svillarreal.fakestorechallenge.ui.product.detail.ProductDetailRoute
 import com.svillarreal.fakestorechallenge.ui.product.list.ProductScreen
 import com.svillarreal.fakestorechallenge.ui.product.list.ProductViewModel

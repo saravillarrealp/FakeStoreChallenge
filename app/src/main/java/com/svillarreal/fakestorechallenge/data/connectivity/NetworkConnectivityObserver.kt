@@ -3,6 +3,7 @@ package com.svillarreal.fakestorechallenge.data.connectivity
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import com.svillarreal.fakestorechallenge.domain.connectivity.ConnectivityObserver
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,11 +31,19 @@ class NetworkConnectivityObserver @Inject constructor(
             }
         }
 
-        val request = NetworkRequest.Builder().build()
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+
         connectivityManager.registerNetworkCallback(request, callback)
 
-        val active = connectivityManager.activeNetworkInfo?.isConnected == true
-        trySend(active)
+        val isOnline = connectivityManager.activeNetwork
+            ?.let {
+                connectivityManager.getNetworkCapabilities(it)
+                    ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            } ?: false
+
+        trySend(isOnline)
 
         awaitClose {
             connectivityManager.unregisterNetworkCallback(callback)

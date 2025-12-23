@@ -30,7 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.svillarreal.fakestorechallenge.R
 import com.svillarreal.fakestorechallenge.ui.CacheStatusBanner
 import com.svillarreal.fakestorechallenge.ui.product.list.components.ProductItem
 
@@ -61,7 +63,7 @@ fun ProductScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "Products") },
+                title = { Text(text = stringResource(id = R.string.products)) },
                 colors = TopAppBarDefaults.topAppBarColors()
             )
         },

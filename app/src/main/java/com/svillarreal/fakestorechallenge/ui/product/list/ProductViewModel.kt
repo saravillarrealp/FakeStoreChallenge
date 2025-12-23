@@ -32,7 +32,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
-    private val observeProductsUseCase: ObserveProductsUseCase,
     private val refreshProductsUseCase: RefreshProductsUseCase,
     private val observeIsOnlineUseCase: ObserveIsOnlineUseCase,
     private val observeLastUpdatedAtUseCase: ObserveLastUpdatedAtUseCase,
@@ -107,32 +106,6 @@ class ProductViewModel @Inject constructor(
             .onEach { refresh() }
             .launchIn(viewModelScope)
 
-    }
-
-    private fun observeProductsFromCache() {
-        observeProductsUseCase(limit = maxFromApi)
-            .map { list -> list.map { it.toViewData() } }
-            .onEach { viewData ->
-                _allProducts.value = viewData
-                _visibleCount.value = minOf(_visibleCount.value, maxOf(pageSize, viewData.size))
-                // si cache quedó más chico, ajusta visibleCount para no pasarte
-                _visibleCount.value = minOf(_visibleCount.value, viewData.size.coerceAtLeast(0))
-                if (_visibleCount.value == 0) _visibleCount.value = minOf(pageSize, viewData.size)
-            }
-            .catch { e ->
-                Timber.Forest.e(e, "Error observing cached products")
-                _allProducts.value = emptyList()
-                _visibleCount.value = pageSize
-            }
-            .launchIn(viewModelScope)
-    }
-
-    private fun autoRefreshWhenOnline() {
-        isOnline
-            .onEach { online ->
-                if (online) refresh()
-            }
-            .launchIn(viewModelScope)
     }
 
     fun refresh() {
