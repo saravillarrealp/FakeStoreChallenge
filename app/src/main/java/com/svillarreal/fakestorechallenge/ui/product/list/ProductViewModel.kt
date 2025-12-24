@@ -2,7 +2,6 @@ package com.svillarreal.fakestorechallenge.ui.product.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.svillarreal.fakestorechallenge.data.repository.connectivity.ConnectivityRepositoryImpl
 import com.svillarreal.fakestorechallenge.domain.usecase.GetProductsUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.ObserveIsOnlineUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.ObserveLastUpdatedAtUseCase
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map

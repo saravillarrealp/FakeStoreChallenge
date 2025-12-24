@@ -99,6 +99,26 @@ object AppModule {
     fun provideProductFavoriteRepository(dao: FavoriteDao): FavoriteRepository =
         FavoriteRepositoryImpl(dao)
 
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object ConnectivityModule {
+
+        @Provides
+        @Singleton
+        fun provideConnectivityManager(
+            @ApplicationContext context: Context
+        ): ConnectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        @Provides
+        @Singleton
+        fun provideConnectivityRepository(
+            connectivityManager: ConnectivityManager
+        ): ConnectivityRepository =
+            ConnectivityRepositoryImpl(connectivityManager)
+    }
+
+
     @Provides
     @Singleton
     fun provideProductDao(database: AppDatabase): ProductDao = database.productsDao()
@@ -133,20 +153,9 @@ object AppModule {
         repository: ProductRepository
     ): ObserveProductsUseCase = ObserveProductsUseCase(repository)
 
-    @Provides
-    fun provideConnectivityManager(
-        @ApplicationContext context: Context
-    ): ConnectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
     @Module
     @InstallIn(SingletonComponent::class)
-    abstract class ConnectivityModule {
-
-        @Binds
-        abstract fun bindConnectivityObserver(
-            impl: ConnectivityRepositoryImpl
-        ): ConnectivityRepository
+    abstract class DBConnectionModule {
 
         @Module
         @InstallIn(SingletonComponent::class)
