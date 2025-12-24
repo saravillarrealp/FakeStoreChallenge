@@ -2,7 +2,7 @@ package com.svillarreal.fakestorechallenge.ui.product.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.svillarreal.fakestorechallenge.data.connectivity.NetworkConnectivityObserver
+import com.svillarreal.fakestorechallenge.data.repository.connectivity.ConnectivityRepositoryImpl
 import com.svillarreal.fakestorechallenge.domain.usecase.GetProductsUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.ObserveIsOnlineUseCase
 import com.svillarreal.fakestorechallenge.domain.usecase.ObserveLastUpdatedAtUseCase
@@ -29,11 +29,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProductViewModel @Inject constructor(
-    getProductsUseCase: GetProductsUseCase,
+    private val getProductsUseCase: GetProductsUseCase,
     private val refreshProductsUseCase: RefreshProductsUseCase,
-    observeIsOnlineUseCase: ObserveIsOnlineUseCase,
+    private val observeIsOnlineUseCase: ObserveIsOnlineUseCase,
     observeLastUpdatedAtUseCase: ObserveLastUpdatedAtUseCase,
-    connectivityObserver: NetworkConnectivityObserver
 ) : ViewModel(), ProductStateProvider {
     private val pageSize = 10
     private val maxFromApi = 20
@@ -49,12 +48,23 @@ class ProductViewModel @Inject constructor(
     val isOnline: StateFlow<Boolean> =
         observeIsOnlineUseCase()
             .catch { emit(false) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+            .stateIn(
+                scope =  viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
 
     val lastUpdatedAt: StateFlow<Long?> =
         observeLastUpdatedAtUseCase()
-            .catch { emit(null) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+            .catch {
+                emit(null)
+                Timber.e(it, "Error observing lastUpdatedAt")
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = null
+            )
 
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
@@ -79,31 +89,39 @@ class ProductViewModel @Inject constructor(
             initialValue = ProductsUiState()
         )
 
-    init {
-        // observer cache
-        getProductsUseCase(limit = maxFromApi)
-            .map { it.map { p -> p.toViewData() } }
-            .onEach { list ->
-                _allProducts.value = list
-                _visibleCount.value = minOf(pageSize, list.size)
-            }
-            .launchIn(viewModelScope)
+    private var started = false
 
-        //observer connectivity
-        connectivityObserver.observeIsOnline()
-            .onEach { _isOnline.value = it }
-            .launchIn(viewModelScope)
+    fun start() {
+        if (started) return
+        started = true
 
-        //initial refresh
+        observeProducts ()
+
         refresh()
 
-        //if is online refresh again
-        connectivityObserver.observeIsOnline()
-            .distinctUntilChanged()
+        isOnline
             .filter { it }
             .onEach { refresh() }
             .launchIn(viewModelScope)
+    }
 
+    fun observeProducts(){
+
+        viewModelScope.launch {
+            refreshProductsUseCase(limit = maxFromApi)
+        }
+
+        getProductsUseCase(limit = maxFromApi)
+            .map { list -> list.map { it.toViewData() } }
+            .onEach { list ->
+                _allProducts.value = list
+                _visibleCount.value = pageSize
+
+            }.catch {
+                Timber.e(it, "Error observing products")
+                _allProducts.value = emptyList()
+                _visibleCount.value = pageSize
+            }.launchIn(viewModelScope)
     }
 
     fun refresh() {

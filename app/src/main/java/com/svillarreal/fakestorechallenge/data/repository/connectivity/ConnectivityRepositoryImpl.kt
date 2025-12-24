@@ -1,33 +1,34 @@
-package com.svillarreal.fakestorechallenge.data.connectivity
+package com.svillarreal.fakestorechallenge.data.repository.connectivity
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import com.svillarreal.fakestorechallenge.domain.connectivity.ConnectivityObserver
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.svillarreal.fakestorechallenge.domain.repository.connectivity.ConnectivityRepository
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 
-class NetworkConnectivityObserver @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ConnectivityObserver {
+class ConnectivityRepositoryImpl @Inject constructor(
+    private val connectivityManager: ConnectivityManager
+) : ConnectivityRepository {
 
     override fun observeIsOnline(): Flow<Boolean> = callbackFlow {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        fun currentIsOnline(): Boolean {
+            val active = connectivityManager.activeNetwork ?: return false
+            val caps = connectivityManager.getNetworkCapabilities(active) ?: return false
+            return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        }
 
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                trySend(true)
+                trySend(currentIsOnline())
             }
 
             override fun onLost(network: Network) {
-                trySend(false)
+                trySend(currentIsOnline())
             }
         }
 
@@ -35,15 +36,8 @@ class NetworkConnectivityObserver @Inject constructor(
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
 
+        trySend(currentIsOnline())
         connectivityManager.registerNetworkCallback(request, callback)
-
-        val isOnline = connectivityManager.activeNetwork
-            ?.let {
-                connectivityManager.getNetworkCapabilities(it)
-                    ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            } ?: false
-
-        trySend(isOnline)
 
         awaitClose {
             connectivityManager.unregisterNetworkCallback(callback)

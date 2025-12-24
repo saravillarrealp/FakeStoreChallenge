@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -57,7 +56,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.material)
     implementation(libs.androidx.material3)
     implementation(libs.compose.foundation)
     debugImplementation(libs.androidx.ui.tooling)
@@ -75,10 +73,9 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    // Network
+    // Network (Retrofit + Moshi)
     implementation(libs.retrofit)
     implementation(libs.retrofit.moshi)
-    implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.okhttp.logging)
 
@@ -87,30 +84,18 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // Datastore
-    implementation(libs.androidx.datastore.preferences)
-
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
 
     // Logging & Images
     implementation(libs.timber)
     implementation(libs.coil.compose)
 
-    // Paging
-    implementation(libs.androidx.paging.runtime)
-    implementation(libs.androidx.paging.compose)
-
-    // Accompanist
-    implementation(libs.accompanist.systemuicontroller)
-
-    // Unit tests (JVM)
+    // Unit tests
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
 
-    // Instrumented tests (device/emulator)
+    // Instrumented tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

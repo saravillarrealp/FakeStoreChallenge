@@ -1,18 +1,19 @@
 package com.svillarreal.fakestorechallenge.di
 
 import android.content.Context
+import android.net.ConnectivityManager
 import androidx.room.Room
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.svillarreal.fakestorechallenge.BuildConfig
-import com.svillarreal.fakestorechallenge.data.connectivity.NetworkConnectivityObserver
 import com.svillarreal.fakestorechallenge.data.local.db.AppDatabase
 import com.svillarreal.fakestorechallenge.data.local.dao.FavoriteDao
 import com.svillarreal.fakestorechallenge.data.local.dao.ProductDao
 import com.svillarreal.fakestorechallenge.data.remote.api.ProductApi
 import com.svillarreal.fakestorechallenge.data.repository.FavoriteRepositoryImpl
 import com.svillarreal.fakestorechallenge.data.repository.ProductRepositoryImpl
-import com.svillarreal.fakestorechallenge.domain.connectivity.ConnectivityObserver
+import com.svillarreal.fakestorechallenge.data.repository.connectivity.ConnectivityRepositoryImpl
+import com.svillarreal.fakestorechallenge.domain.repository.connectivity.ConnectivityRepository
 import com.svillarreal.fakestorechallenge.domain.repository.FavoriteRepository
 import com.svillarreal.fakestorechallenge.domain.repository.ProductRepository
 import com.svillarreal.fakestorechallenge.domain.usecase.GetProductDetailUseCase
@@ -132,14 +133,20 @@ object AppModule {
         repository: ProductRepository
     ): ObserveProductsUseCase = ObserveProductsUseCase(repository)
 
+    @Provides
+    fun provideConnectivityManager(
+        @ApplicationContext context: Context
+    ): ConnectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
     @Module
     @InstallIn(SingletonComponent::class)
     abstract class ConnectivityModule {
 
         @Binds
         abstract fun bindConnectivityObserver(
-            impl: NetworkConnectivityObserver
-        ): ConnectivityObserver
+            impl: ConnectivityRepositoryImpl
+        ): ConnectivityRepository
 
         @Module
         @InstallIn(SingletonComponent::class)

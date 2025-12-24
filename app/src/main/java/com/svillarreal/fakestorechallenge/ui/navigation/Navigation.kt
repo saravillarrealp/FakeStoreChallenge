@@ -2,6 +2,7 @@ package com.svillarreal.fakestorechallenge.ui.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
@@ -19,6 +20,9 @@ fun NavGraphBuilder.productScreenNavigation(
 ) {
     composable(Routes.PRODUCTS) {
         val viewModel = hiltViewModel<ProductViewModel>()
+        LaunchedEffect(Unit) {
+            viewModel.start()
+        }
         ProductScreen(
             modifier = Modifier.padding(innerPadding),
             stateProvider = viewModel,

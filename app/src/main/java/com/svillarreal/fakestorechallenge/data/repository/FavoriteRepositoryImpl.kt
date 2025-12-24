@@ -10,11 +10,6 @@ class FavoriteRepositoryImpl @Inject constructor(
     private val dao: FavoriteDao
 ) : FavoriteRepository {
 
-    override fun observeFavoriteIds(): Flow<Set<Int>> =
-        dao.observeFavoriteIds()
-            .map { it.toSet() }
-            .distinctUntilChanged()
-
     override fun observeIsFavorite(productId: Int): Flow<Boolean> =
         dao.observeIsFavoriteCount(productId)
             .map { count -> count > 0 }
